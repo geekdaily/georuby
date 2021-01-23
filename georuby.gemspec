@@ -28,7 +28,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec"
   s.add_development_dependency "simplecov"
   # TODO: Update for dbf 4.x
-  s.add_development_dependency 'dbf', '~> 2'
+  s.add_development_dependency 'dbf', '~> 4'
   s.add_development_dependency 'json'
   s.add_development_dependency 'nokogiri'
 
