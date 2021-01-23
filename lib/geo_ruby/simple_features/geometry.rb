@@ -1,6 +1,6 @@
 module GeoRuby #:nodoc:
   module SimpleFeatures
-    # Default SRID
+    # Default SRID is WGS84, see https://en.wikipedia.org/wiki/Spatial_reference_system
     DEFAULT_SRID = 4326 unless defined? DEFAULT_SRID
 
     # Root of all geometric data classes.
