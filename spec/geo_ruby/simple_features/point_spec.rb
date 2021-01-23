@@ -2,85 +2,87 @@
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
 describe GeoRuby::SimpleFeatures::Point do
-  let(:point) { GeoRuby::SimpleFeatures::Point.new(4326) }
+  describe 'class methods' do
+    subject {GeoRuby::SimpleFeatures::Point}
+    
+    it {should be_geometric}
+    
+    it 'should have convenience aliases for constructors' do
+      CONSTRUCTOR_ALIASES = {
+        :from_x_y => [:xy, :from_xy, :from_lon_lat],
+        :from_x_y_z => [:xyz, :from_xyz, :from_lon_lat_z],
+        :from_x_y_m => [:from_lon_lat_m],
+        :from_x_y_z_m => [:from_lon_lat_z_m],
+        :from_r_t => [:from_rad_tet]
+      }
+      
+      constructors = CONSTRUCTOR_ALIASES.keys.flatten.sort.uniq
+      aliased_methods = CONSTRUCTOR_ALIASES.values.flatten.sort.uniq
+      
+      expect(GeoRuby::SimpleFeatures::Point.public_methods).to include(*constructors)
+      expect(GeoRuby::SimpleFeatures::Point.public_methods).to include(*aliased_methods)
+      
+      CONSTRUCTOR_ALIASES.each do |constructor_name, aliases|
+        constructor_method = subject.method(constructor_name)
+        aliased_methods = aliases.map {|name| subject.method(name)}
 
-  it 'should instantiatember' do
-    violated unless point
-    expect(point).to be_instance_of(GeoRuby::SimpleFeatures::Point)
+        aliased_methods.each do |aliased_method|
+          expect(aliased_method).to eql(constructor_method)
+        end
+      end
+    end
+    
+    it 'should be subclassable' do
+      place = Class.new(GeoRuby::SimpleFeatures::Point)
+      p = place.from_x_y(1, 2)
+      expect(p).to be_a place
+    end
+  end
+  
+  context 'initialized with no arguments' do
+    let(:point) { GeoRuby::SimpleFeatures::Point.new() }
+    
+    it 'should instantiate with no arguments' do
+      violated unless point
+      expect(point).to be_instance_of(GeoRuby::SimpleFeatures::Point)
+    end
+
+    it 'should set params to 0.0 by default' do
+      expect(point.x).to eql(0.0)
+      expect(point.y).to eql(0.0)
+      expect(point.z).to eql(0.0)
+      expect(point.m).to eql(0.0)
+    end
+
+    it 'should not have z or m by default' do
+      expect(point.with_z).to be_falsey
+      expect(point).not_to be_with_z
+      expect(point.with_m).to be_falsey
+      expect(point).not_to be_with_m
+    end
+    
+    it 'should have the default srid' do
+      expect(point.srid).to eql(GeoRuby::SimpleFeatures::DEFAULT_SRID)
+    end
+
+    it 'should have a simple matcher' do
+      expect(point).to be_a_point
+    end
+
+    it 'should have a text geometry type' do
+      expect(point.text_geometry_type).to eq('POINT')
+    end
+
+    it 'should have a 2D matcher' do
+      expect(point).to be_a_point(0.0, 0.0)
+    end
+
+    it 'should have binary_geometry_type 2' do # TODO: type 2 == 1?
+      expect(point.binary_geometry_type).to eql(1)
+    end
   end
 
-  it 'should have a nice matcher' do
-    expect(point).to be_a_point
-  end
-
-  it 'should have a text geometry type' do
-    expect(point.text_geometry_type).to eq('POINT')
-  end
-
-  it 'should have a very nice matcher' do
-    expect(point).to be_a_point(0.0, 0.0)
-  end
-
-  it 'should have a very nice matcher' do
-    expect(GeoRuby::SimpleFeatures::Point.from_x_y_z_m(1, 2, 3.33, 't'))
-      .to be_a_point(1, 2, 3.33, 't')
-  end
-
-  it 'should have a dumb matcher' do
-    expect(GeoRuby::SimpleFeatures::Point).to be_geometric
-  end
-
-  it 'should be subclassable' do
-    place = Class.new(GeoRuby::SimpleFeatures::Point)
-    p = place.from_x_y(1, 2)
-    expect(p).to be_a place
-  end
-
-  it 'should have binary_geometry_type 2' do
-    expect(point.binary_geometry_type).to eql(1)
-  end
-
-  it 'should have the correct srid' do
-    expect(point.srid).to eql(4326)
-  end
-
-  it 'should not have z or m' do
-    expect(point.with_z).to be_falsey
-    expect(point).not_to be_with_z
-    expect(point.with_m).to be_falsey
-    expect(point).not_to be_with_m
-  end
-
-  it 'should set params to 0.0' do
-    expect(point.x).to eql(0.0)
-    expect(point.y).to eql(0.0)
-    expect(point.z).to eql(0.0)
-    expect(point.m).to eql(0.0)
-  end
-
-  it 'should compare ok' do
-    point1 = GeoRuby::SimpleFeatures::Point.new
-    point1.set_x_y(1.5, 45.4)
-    point2 = GeoRuby::SimpleFeatures::Point.new
-    point2.set_x_y(1.5, 45.4)
-    point3 = GeoRuby::SimpleFeatures::Point.new
-    point3.set_x_y(4.5, 12.3)
-    point4 = GeoRuby::SimpleFeatures::Point.new
-    point4.set_x_y_z(1.5, 45.4, 423)
-    point5 = GeoRuby::SimpleFeatures::Point.new
-    point5.set_x_y(1.5, 45.4)
-    point5.m = 15
-    geometry = GeoRuby::SimpleFeatures::Geometry.new
-
-    expect(point1).to eq(point2)
-    expect(point1).not_to eq(point3)
-    expect(point1).not_to eq(point4)
-    expect(point1).not_to eq(point5)
-    expect(point1).not_to eq(geometry)
-  end
-
-  describe '> Instantiation' do
-
+  context 'initialized with 2d arguments' do
     it 'should instantiate a 2d point' do
       point = GeoRuby::SimpleFeatures::Point.from_x_y(10, 20, 123)
       expect(point.x).to eql(10)
@@ -88,55 +90,7 @@ describe GeoRuby::SimpleFeatures::Point do
       expect(point.srid).to eql(123)
       expect(point.z).to eql(0.0)
     end
-
-    it 'should instantiate a 2d easily' do
-      point = GeoRuby::SimpleFeatures::Point.xy(10, 20, 123)
-      expect(point.x).to eql(10)
-      expect(point.y).to eql(20)
-      expect(point.srid).to eql(123)
-    end
-
-    it 'should instantiate a 3d point' do
-      point = GeoRuby::SimpleFeatures::Point.from_x_y_z(-10, -20, -30)
-      expect(point.x).to eql(-10)
-      expect(point.y).to eql(-20)
-      expect(point.z).to eql(-30)
-    end
-
-    it 'should store correctly a 3d point' do
-      point = GeoRuby::SimpleFeatures::Point.from_x_y_z(-10, -20, -30)
-      expect(point.to_coordinates).to eq([-10, -20, -30])
-    end
-
-    it 'should instantiate a 3d(m) point' do
-      point = GeoRuby::SimpleFeatures::Point.from_x_y_m(10, 20, 30)
-      expect(point.x).to eql(10)
-      expect(point.y).to eql(20)
-      expect(point.m).to eql(30)
-      expect(point.z).to eql(0.0)
-    end
-
-    it 'should instantiate a 4d point' do
-      point = GeoRuby::SimpleFeatures::Point.from_x_y_z_m(10, 20, 30, 40, 123)
-      expect(point.x).to eql(10)
-      expect(point.y).to eql(20)
-      expect(point.z).to eql(30)
-      expect(point.m).to eql(40)
-      expect(point.srid).to eql(123)
-    end
-
-    it 'should store correctly a 4d point' do
-      point = GeoRuby::SimpleFeatures::Point.from_x_y_z_m(-10, -20, -30, 1)
-      expect(point.m).to eql(1)
-      expect(point.to_coordinates).to eq([-10, -20, -30, 1])
-    end
-
-    it 'should instantiate a point from polar coordinates' do
-      point = GeoRuby::SimpleFeatures::Point.from_r_t(1.4142, 45)
-      expect(point.y).to be_within(0.1).of(1)
-      expect(point.x).to be_within(0.1).of(1)
-    end
-
+      
     it 'should instantiate from coordinates x,y' do
       point = GeoRuby::SimpleFeatures::Point.from_coordinates([1.6, 2.8], 123)
       expect(point.x).to eql(1.6)
@@ -145,61 +99,7 @@ describe GeoRuby::SimpleFeatures::Point do
       expect(point.z).to eql(0.0)
       expect(point.srid).to eql(123)
     end
-
-    it 'should instantiate from coordinates x,y,z' do
-      point = GeoRuby::SimpleFeatures::Point.from_coordinates([1.6, 2.8, 3.4], 123, true)
-      expect(point.x).to eql(1.6)
-      expect(point.y).to eql(2.8)
-      expect(point.z).to eql(3.4)
-      expect(point).to be_with_z
-      expect(point.srid).to eql(123)
-    end
-
-    it 'should instantiate from coordinates x,y,z,m' do
-      point = GeoRuby::SimpleFeatures::Point.from_coordinates([1.6, 2.8, 3.4, 15], 123, true, true)
-      expect(point.x).to eql(1.6)
-      expect(point.y).to eql(2.8)
-      expect(point.z).to eql(3.4)
-      expect(point.m).to eql(15)
-      expect(point).to be_with_z
-      expect(point).to be_with_m
-      expect(point.srid).to eql(123)
-    end
-
-    it 'should have a bbox' do
-      bbox = GeoRuby::SimpleFeatures::Point.from_x_y_z_m(-1.6, 2.8, -3.4, 15, 123).bounding_box
-      expect(bbox.length).to eql(2)
-      expect(bbox[0]).to eq(GeoRuby::SimpleFeatures::Point.from_x_y_z(-1.6, 2.8, -3.4))
-      expect(bbox[1]).to eq(GeoRuby::SimpleFeatures::Point.from_x_y_z(-1.6, 2.8, -3.4))
-    end
-
-    it 'should parse lat long' do
-      expect(GeoRuby::SimpleFeatures::Point.from_latlong("-20° 47' 26.37", "-20° 47' 26.37").x).to be_within(0.00001).of(-20.790658)
-      expect(GeoRuby::SimpleFeatures::Point.from_latlong("20° 47' 26.378", "20° 47' 26.378").y).to be_within(0.00001).of(20.790658)
-    end
-
-    it 'should parse lat long w/o sec' do
-      expect(GeoRuby::SimpleFeatures::Point.from_latlong('-20°47′26″', '-20°47′26″').x).to be_within(0.00001).of(-20.790555)
-      expect(GeoRuby::SimpleFeatures::Point.from_latlong('20°47′26″', '20°47′26″').y).to be_within(0.00001).of(20.790555)
-    end
-
-    it 'should accept with W or S notation' do
-      expect(GeoRuby::SimpleFeatures::Point.from_latlong("20° 47' 26.37 W", "20° 47' 26.37 S").x).to be_within(0.00001).of(-20.790658)
-      expect(GeoRuby::SimpleFeatures::Point.from_latlong("20° 47' 26.37 W", "20° 47' 26.37 S").y).to be_within(0.00001).of(-20.790658)
-    end
-
-    it 'should instantiate a point from positive degrees' do
-      point = GeoRuby::SimpleFeatures::Point.from_latlong('47`20 06.09E', '22`50 77.35N')
-      expect(point.y).to be_within(0.000001).of(22.8548194)
-      expect(point.x).to be_within(0.000001).of(47.335025)
-    end
-
-    it 'should instantiate a point from negative degrees' do
-      point = GeoRuby::SimpleFeatures::Point.from_latlong('47`20 06.09W', '22`50 77.35S')
-      expect(point.y).to be_within(0.000001).of(-22.8548194)
-      expect(point.x).to be_within(0.000001).of(-47.335025)
-    end
-
+      
     it 'should print out nicely' do
       expect(GeoRuby::SimpleFeatures::Point.from_x_y(47.88, -20.1).as_latlong).to eql('47°52′48″, -20°06′00″')
     end
@@ -243,8 +143,141 @@ describe GeoRuby::SimpleFeatures::Point do
     it 'should print out nicely long with opts' do
       expect(GeoRuby::SimpleFeatures::Point.from_x_y(-47.11, 20.2).as_long(full: true, coord: true)).to eql('20°11′60.00″E')
     end
-
   end
+
+  context 'initialized with 3d arguments' do
+    it 'should instantiate a 3d point' do
+      point = GeoRuby::SimpleFeatures::Point.from_x_y_z(-10, -20, -30)
+      expect(point.x).to eql(-10)
+      expect(point.y).to eql(-20)
+      expect(point.z).to eql(-30)
+    end
+
+    it 'should store correctly a 3d point' do
+      point = GeoRuby::SimpleFeatures::Point.from_x_y_z(-10, -20, -30)
+      expect(point.to_coordinates).to eq([-10, -20, -30])
+    end
+      
+    it 'should instantiate from coordinates x,y,z' do
+      point = GeoRuby::SimpleFeatures::Point.from_coordinates([1.6, 2.8, 3.4], 123, true)
+      expect(point.x).to eql(1.6)
+      expect(point.y).to eql(2.8)
+      expect(point.z).to eql(3.4)
+      expect(point).to be_with_z
+      expect(point.srid).to eql(123)
+    end
+  end
+    
+  context 'initialized with 2d+m arguments' do
+    it 'should instantiate a 3d(m) point' do
+      point = GeoRuby::SimpleFeatures::Point.from_x_y_m(10, 20, 30)
+      expect(point.x).to eql(10)
+      expect(point.y).to eql(20)
+      expect(point.m).to eql(30)
+      expect(point.z).to eql(0.0)
+    end
+      
+    it 'should have a 3D+M matcher' do
+      expect(GeoRuby::SimpleFeatures::Point.from_x_y_z_m(1, 2, 3.33, 't'))
+      .to be_a_point(1, 2, 3.33, 't')
+    end
+  end
+    
+  context 'initialized with 3d+m (aka 4d) arguments' do
+    it 'should instantiate a 4d point' do
+      point = GeoRuby::SimpleFeatures::Point.from_x_y_z_m(10, 20, 30, 40, 123)
+      expect(point.x).to eql(10)
+      expect(point.y).to eql(20)
+      expect(point.z).to eql(30)
+      expect(point.m).to eql(40)
+      expect(point.srid).to eql(123)
+    end
+
+    it 'should store correctly a 4d point' do
+      point = GeoRuby::SimpleFeatures::Point.from_x_y_z_m(-10, -20, -30, 1)
+      expect(point.m).to eql(1)
+      expect(point.to_coordinates).to eq([-10, -20, -30, 1])
+    end
+      
+    it 'should instantiate from coordinates x,y,z,m' do
+      point = GeoRuby::SimpleFeatures::Point.from_coordinates([1.6, 2.8, 3.4, 15], 123, true, true)
+      expect(point.x).to eql(1.6)
+      expect(point.y).to eql(2.8)
+      expect(point.z).to eql(3.4)
+      expect(point.m).to eql(15)
+      expect(point).to be_with_z
+      expect(point).to be_with_m
+      expect(point.srid).to eql(123)
+    end
+      
+    it 'should have a bbox' do
+      bbox = GeoRuby::SimpleFeatures::Point.from_x_y_z_m(-1.6, 2.8, -3.4, 15, 123).bounding_box
+      expect(bbox.length).to eql(2)
+      expect(bbox[0]).to eq(GeoRuby::SimpleFeatures::Point.from_x_y_z(-1.6, 2.8, -3.4))
+      expect(bbox[1]).to eq(GeoRuby::SimpleFeatures::Point.from_x_y_z(-1.6, 2.8, -3.4))
+    end
+  end
+    
+  context '#from_rt' do
+    it 'should instantiate a point from polar coordinates' do
+      point = GeoRuby::SimpleFeatures::Point.from_r_t(1.4142, 45)
+      expect(point.y).to be_within(0.1).of(1)
+      expect(point.x).to be_within(0.1).of(1)
+    end
+  end
+    
+  describe '#from_latlong with parsing' do
+    it 'should parse lat long' do
+      expect(GeoRuby::SimpleFeatures::Point.from_latlong("-20° 47' 26.37", "-20° 47' 26.37").x).to be_within(0.00001).of(-20.790658)
+      expect(GeoRuby::SimpleFeatures::Point.from_latlong("20° 47' 26.378", "20° 47' 26.378").y).to be_within(0.00001).of(20.790658)
+    end
+
+    it 'should parse lat long w/o sec' do
+      expect(GeoRuby::SimpleFeatures::Point.from_latlong('-20°47′26″', '-20°47′26″').x).to be_within(0.00001).of(-20.790555)
+      expect(GeoRuby::SimpleFeatures::Point.from_latlong('20°47′26″', '20°47′26″').y).to be_within(0.00001).of(20.790555)
+    end
+
+    it 'should accept with W or S notation' do
+      expect(GeoRuby::SimpleFeatures::Point.from_latlong("20° 47' 26.37 W", "20° 47' 26.37 S").x).to be_within(0.00001).of(-20.790658)
+      expect(GeoRuby::SimpleFeatures::Point.from_latlong("20° 47' 26.37 W", "20° 47' 26.37 S").y).to be_within(0.00001).of(-20.790658)
+    end
+
+    it 'should instantiate a point from positive degrees' do
+      point = GeoRuby::SimpleFeatures::Point.from_latlong('47`20 06.09E', '22`50 77.35N')
+      expect(point.y).to be_within(0.000001).of(22.8548194)
+      expect(point.x).to be_within(0.000001).of(47.335025)
+    end
+
+    it 'should instantiate a point from negative degrees' do
+      point = GeoRuby::SimpleFeatures::Point.from_latlong('47`20 06.09W', '22`50 77.35S')
+      expect(point.y).to be_within(0.000001).of(-22.8548194)
+      expect(point.x).to be_within(0.000001).of(-47.335025)
+    end
+  end
+
+  describe '#==' do
+    it 'should compare ok' do
+      point1 = GeoRuby::SimpleFeatures::Point.new
+      point1.set_x_y(1.5, 45.4)
+      point2 = GeoRuby::SimpleFeatures::Point.new
+      point2.set_x_y(1.5, 45.4)
+      point3 = GeoRuby::SimpleFeatures::Point.new
+      point3.set_x_y(4.5, 12.3)
+      point4 = GeoRuby::SimpleFeatures::Point.new
+      point4.set_x_y_z(1.5, 45.4, 423)
+      point5 = GeoRuby::SimpleFeatures::Point.new
+      point5.set_x_y(1.5, 45.4)
+      point5.m = 15
+      geometry = GeoRuby::SimpleFeatures::Geometry.new
+
+      expect(point1).to eq(point2)
+      expect(point1).not_to eq(point3)
+      expect(point1).not_to eq(point4)
+      expect(point1).not_to eq(point5)
+      expect(point1).not_to eq(geometry)
+    end
+  end
+
 
   describe ' > Distance & Bearing' do
 
@@ -253,17 +286,17 @@ describe GeoRuby::SimpleFeatures::Point do
 
     it 'and a 3th grade child should calculate euclidian distance' do
       expect(p1.euclidian_distance(p2))
-        .to be_within(0.00000001).of(1.4142135623731)
+      .to be_within(0.00000001).of(1.4142135623731)
     end
 
     it 'should calculate spherical distance' do
       expect(p1.spherical_distance(p2))
-        .to be_within(0.00000001).of(157_225.358003181)
+      .to be_within(0.00000001).of(157_225.358003181)
     end
 
     it 'should calculate ellipsoidal distance' do
       expect(p1.ellipsoidal_distance(p2))
-        .to be_within(0.00000001).of(156_876.149400742)
+      .to be_within(0.00000001).of(156_876.149400742)
     end
 
     describe 'Orthogonal Distance' do
