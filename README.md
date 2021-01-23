@@ -1,6 +1,13 @@
 GeoRuby
 =======
 
+A Brief Warning re: `geekdaily/georuby`
+---------------------------------------
+I've used this a little, but not heavily, and decided I'd add some bits that seemed generally useful and convenient, as well as clean up and make some of it a bit more accessible as I learn more about the code and geometric data. I'm aiming to be sure not to break things, but if you want rock solid stable implemented by someone who knew what they were doing, I recommend sticking with [NoFxx's version](https://github.com/nofxx/georuby).
+
+Overview
+--------
+
 This is intended as a holder for geometric data.
 The data model roughly follows the OGC "Simple Features for SQL" specification,
 so it should play nice with data returned from PostGIS or any Spatial Extensions (MongoDB, MySQL...).
