@@ -1,6 +1,7 @@
 GeoRuby
 =======
 
+
 A Brief Warning re: `geekdaily/georuby`
 ---------------------------------------
 I've used this a little, but not heavily, and decided I'd add some bits that seemed generally useful and convenient, as well as clean up and make some of it a bit more accessible as I learn more about the code and geometric data. I'm aiming to be sure not to break things, but if you want rock solid stable implemented by someone who knew what they were doing, I recommend sticking with [NoFxx's version](https://github.com/nofxx/georuby).
@@ -20,12 +21,12 @@ If you are looking for Proj/Geos (geometric operators or reprojections) rubygem 
 rgeo:"https://github.com/dazuma/rgeo"
 
 [![Gem Version](https://badge.fury.io/rb/georuby.svg)](http://badge.fury.io/rb/georuby)
-[![Dependency Status](https://gemnasium.com/nofxx/georuby.svg)](https://gemnasium.com/nofxx/georuby)
-[![Build Status](https://travis-ci.org/nofxx/georuby.svg?branch=master)](https://travis-ci.org/nofxx/georuby)
-[![Code Climate](https://codeclimate.com/github/nofxx/georuby.svg)](https://codeclimate.com/github/nofxx/georuby)
-[![Coverage Status](https://coveralls.io/repos/nofxx/georuby/badge.svg)](https://coveralls.io/r/nofxx/georuby)
+[![Dependency Status](https://gemnasium.com/geekdaily/georuby.svg)](https://gemnasium.com/geekdaily/georuby)
+[![Build Status](https://travis-ci.org/geekdaily/georuby.svg?branch=master)](https://travis-ci.org/geekdaily/georuby)
+[![Code Climate](https://codeclimate.com/github/geekdaily/georuby.svg)](https://codeclimate.com/github/geekdaily/georuby)
+[![Coverage Status](https://coveralls.io/repos/geekdaily/georuby/badge.svg)](https://coveralls.io/r/geekdaily/georuby)
 
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/nofxx/georuby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/geekdaily/georuby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Available data types
 --------------------
