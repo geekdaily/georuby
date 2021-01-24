@@ -29,9 +29,6 @@ module GeoRuby
       # Main DBF File Reader
       class Reader < Table
         alias_method :fields, :columns
-        def header_length
-          @columns_count
-        end
 
         def self.open(f)
           new(f)
