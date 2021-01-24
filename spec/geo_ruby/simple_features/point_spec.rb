@@ -82,6 +82,35 @@ describe GeoRuby::SimpleFeatures::Point do
     it 'should have binary_geometry_type 2' do # TODO: type 2 == 1?
       expect(point.binary_geometry_type).to eql(1)
     end
+    
+    it 'should have convenience aliases for several methods' do      
+      convenience_aliases = {
+        :x => [:lon, :lng],
+        :y => [:lat],
+        # TODO: resolve this bug
+        # :r => [:rad],
+        :t => [:tet, :tetha],
+        :set_x_y => [:set_lon_lat],
+        :set_x_y_z => [:set_lon_lat_z],
+        :as_long => [:as_lng],
+        :as_latlong => [:as_ll]
+      }
+      
+      methods = convenience_aliases.to_a.flatten.sort.uniq
+      
+      methods.each do |mthd|
+        expect(point).to respond_to(mthd)
+      end
+      
+      convenience_aliases.each do |method_name, aliases|
+        orig_method = subject.method(method_name)
+        aliased_methods = aliases.map {|name| subject.method(name)}
+
+        aliased_methods.each do |aliased_method|
+          expect(aliased_method).to eql(orig_method)
+        end
+      end
+    end
   end
 
   context 'initialized with 2d arguments' do
