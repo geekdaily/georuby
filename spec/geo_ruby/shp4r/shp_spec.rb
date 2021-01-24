@@ -1,28 +1,28 @@
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
-# TODO: Look at https://github.com/Nazz78/georuby/ ... he seems to have addressed this.
+def shp_from_data_file(filename)
+  GeoRuby::Shp4r::ShpFile.open(File.join(SPEC_DATA_DIR, filename))
+end
 
 describe GeoRuby::Shp4r do
 
   describe 'Point' do
-    before(:each) do
-      @shpfile = GeoRuby::Shp4r::ShpFile.open(File.dirname(__FILE__) + '/../../data/point.shp')
-    end
+    subject(:shpfile) {shp_from_data_file('point')}
 
     it 'should parse ok' do
-      expect(@shpfile.record_count).to eql(2)
-      expect(@shpfile.fields.size).to eq(1)
-      expect(@shpfile.shp_type).to eql(GeoRuby::Shp4r::ShpType::POINT)
+      expect(shpfile.record_count).to eql(2)
+      expect(shpfile.fields.size).to eq(1)
+      expect(shpfile.shp_type).to eql(GeoRuby::Shp4r::ShpType::POINT)
     end
 
     it 'should parse fields' do
-      field = @shpfile.fields.first
+      field = shpfile.fields.first
       expect(field.name).to eql('Hoyoyo')
       expect(field.type).to eql('N')
     end
 
     it 'should parse record 1' do
-      rec = @shpfile[0]
+      rec = shpfile[0]
       expect(rec.geometry).to be_kind_of GeoRuby::SimpleFeatures::Point
       expect(rec.geometry.x).to be_within(0.00001).of(-90.08375)
       expect(rec.geometry.y).to be_within(0.00001).of(34.39996)
@@ -30,7 +30,7 @@ describe GeoRuby::Shp4r do
     end
 
     it 'should parse record 2' do
-      rec = @shpfile[1]
+      rec = shpfile[1]
       expect(rec.geometry).to be_kind_of GeoRuby::SimpleFeatures::Point
       expect(rec.geometry.x).to be_within(0.00001).of(-87.82580)
       expect(rec.geometry.y).to be_within(0.00001).of(33.36416)
@@ -40,18 +40,16 @@ describe GeoRuby::Shp4r do
   end
 
   describe 'Polyline' do
-    before(:each) do
-      @shpfile = GeoRuby::Shp4r::ShpFile.open(File.dirname(__FILE__) + '/../../data/polyline.shp')
-    end
-
+    subject(:shpfile) {shp_from_data_file('polyline')}
+    
     it 'should parse ok' do
-      expect(@shpfile.record_count).to eql(1)
-      expect(@shpfile.fields.size).to eq(1)
-      expect(@shpfile.shp_type).to eql(GeoRuby::Shp4r::ShpType::POLYLINE)
+      expect(shpfile.record_count).to eql(1)
+      expect(shpfile.fields.size).to eq(1)
+      expect(shpfile.shp_type).to eql(GeoRuby::Shp4r::ShpType::POLYLINE)
     end
 
     it 'should parse fields' do
-      field = @shpfile.fields.first
+      field = shpfile.fields.first
       expect(field.name).to eql('Chipoto')
       # GeoRuby::Shp4r::Dbf now uses the decimal to choose between int and float
       # So here is N instead of F
@@ -59,7 +57,7 @@ describe GeoRuby::Shp4r do
     end
 
     it 'should parse record 1' do
-      rec = @shpfile[0]
+      rec = shpfile[0]
       expect(rec.geometry).to be_kind_of GeoRuby::SimpleFeatures::MultiLineString
       expect(rec.geometry.length).to eql(1)
       expect(rec.geometry[0].length).to eql(6)
@@ -69,24 +67,22 @@ describe GeoRuby::Shp4r do
   end
 
   describe 'Polygon' do
-    before(:each) do
-      @shpfile = GeoRuby::Shp4r::ShpFile.open(File.dirname(__FILE__) + '/../../data/polygon.shp')
-    end
+    subject(:shpfile) {shp_from_data_file('polygon')}
 
     it 'should parse ok' do
-      expect(@shpfile.record_count).to eql(1)
-      expect(@shpfile.fields.size).to eq(1)
-      expect(@shpfile.shp_type).to eql(GeoRuby::Shp4r::ShpType::POLYGON)
+      expect(shpfile.record_count).to eql(1)
+      expect(shpfile.fields.size).to eq(1)
+      expect(shpfile.shp_type).to eql(GeoRuby::Shp4r::ShpType::POLYGON)
     end
 
     it 'should parse fields' do
-      field = @shpfile.fields.first
+      field = shpfile.fields.first
       expect(field.name).to eql('Hello')
       expect(field.type).to eql('C')
     end
 
     it 'should parse record 1' do
-      rec = @shpfile[0]
+      rec = shpfile[0]
       expect(rec.geometry).to be_kind_of GeoRuby::SimpleFeatures::MultiPolygon
       expect(rec.geometry.length).to eql(1)
       expect(rec.geometry[0].length).to eql(1)
