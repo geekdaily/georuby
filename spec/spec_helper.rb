@@ -16,11 +16,6 @@ require 'geo_ruby/kml'
 require 'geo_ruby/georss'
 require 'geo_ruby/geojson'
 
-if ENV['CI']
-  require 'coveralls'
-  Coveralls.wear!
-end
-
 module GeorubyMatchers
   class BeGeometric
     def matches?(actual)

@@ -35,8 +35,4 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'guard'
   s.add_development_dependency 'guard-rspec'
   s.add_development_dependency 'guard-rubocop'
-  
-  if ENV['CI']
-    s.add_development_dependency 'coveralls', require: false
-  end
 end

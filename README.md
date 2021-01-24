@@ -24,8 +24,6 @@ rgeo:"https://github.com/dazuma/rgeo"
 [![Dependency Status](https://gemnasium.com/geekdaily/georuby.svg)](https://gemnasium.com/geekdaily/georuby)
 [![Build Status](https://travis-ci.org/geekdaily/georuby.svg?branch=master)](https://travis-ci.org/geekdaily/georuby)
 [![Code Climate](https://codeclimate.com/github/geekdaily/georuby.svg)](https://codeclimate.com/github/geekdaily/georuby)
-[![Coverage Status](https://coveralls.io/repos/geekdaily/georuby/badge.svg)](https://coveralls.io/r/geekdaily/georuby)
-
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/geekdaily/georuby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Available data types
