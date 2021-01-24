@@ -8,7 +8,9 @@ describe GeoRuby::SimpleFeatures::Point do
     it {should be_geometric}
     
     it 'should have convenience aliases for constructors' do
-      CONSTRUCTOR_ALIASES = {
+      # Intentionally copied vs. using a class constant to prevent accidentally removing
+      # something that someone needs for backwards compatibility
+      constructor_aliases = {
         :from_x_y => [:xy, :from_xy, :from_lon_lat],
         :from_x_y_z => [:xyz, :from_xyz, :from_lon_lat_z],
         :from_x_y_m => [:from_lon_lat_m],
@@ -16,13 +18,13 @@ describe GeoRuby::SimpleFeatures::Point do
         :from_r_t => [:from_rad_tet]
       }
       
-      constructors = CONSTRUCTOR_ALIASES.keys.flatten.sort.uniq
-      aliased_methods = CONSTRUCTOR_ALIASES.values.flatten.sort.uniq
+      constructors = constructor_aliases.keys.flatten.sort.uniq
+      aliased_methods = constructor_aliases.values.flatten.sort.uniq
       
       expect(GeoRuby::SimpleFeatures::Point.public_methods).to include(*constructors)
       expect(GeoRuby::SimpleFeatures::Point.public_methods).to include(*aliased_methods)
       
-      CONSTRUCTOR_ALIASES.each do |constructor_name, aliases|
+      constructor_aliases.each do |constructor_name, aliases|
         constructor_method = subject.method(constructor_name)
         aliased_methods = aliases.map {|name| subject.method(name)}
 

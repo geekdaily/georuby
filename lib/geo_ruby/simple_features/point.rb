@@ -431,18 +431,18 @@ module GeoRuby
         point.set_x_y(p[0], p[1])
       end
 
-      # Aliasing the constructors in case you like lat/lon over y/x
       class << self
-        alias_method :xy,               :from_x_y
-        alias_method :from_xy,          :from_x_y
-        alias_method :xyz,              :from_x_y_z
-        alias_method :from_xyz,         :from_x_y_z
-        alias_method :from_lon_lat_z,   :from_x_y_z
-        alias_method :from_lon_lat,     :from_x_y
-        alias_method :from_lon_lat_z,   :from_x_y_z
-        alias_method :from_lon_lat_m,   :from_x_y_m
-        alias_method :from_lon_lat_z_m, :from_x_y_z_m
-        alias_method :from_rad_tet,     :from_r_t
+        # Aliasing the constructors in case you like lat/lon over y/x
+        {:from_x_y => [:xy, :from_xy, :from_lon_lat],
+          :from_x_y_z => [:xyz, :from_xyz, :from_lon_lat_z],
+          :from_x_y_m => [:from_lon_lat_m],
+          :from_x_y_z_m => [:from_lon_lat_z_m],
+          :from_r_t => [:from_rad_tet]
+        }.each do |orig_method, aliases|
+          aliases.each do |aliased_method|
+            alias_method aliased_method, orig_method
+          end
+        end
       end
     end # Point
   end # SimpleFeatures
