@@ -83,11 +83,12 @@ describe GeoRuby::SimpleFeatures::Point do
   end
 
   context 'initialized with 2d arguments' do
+    subject(:point) {GeoRuby::SimpleFeatures::Point.from_x_y(47.11, -20.2, 619)}
+    
     it 'should instantiate a 2d point' do
-      point = GeoRuby::SimpleFeatures::Point.from_x_y(10, 20, 123)
-      expect(point.x).to eql(10)
-      expect(point.y).to eql(20)
-      expect(point.srid).to eql(123)
+      expect(point.x).to eql(47.11)
+      expect(point.y).to eql(-20.2)
+      expect(point.srid).to eql(619)
       expect(point.z).to eql(0.0)
     end
       
@@ -99,62 +100,59 @@ describe GeoRuby::SimpleFeatures::Point do
       expect(point.z).to eql(0.0)
       expect(point.srid).to eql(123)
     end
-      
-    it 'should print out nicely' do
-      expect(GeoRuby::SimpleFeatures::Point.from_x_y(47.88, -20.1).as_latlong).to eql('47°52′48″, -20°06′00″')
-    end
 
-    it 'should print out nicely latlong' do
-      expect(GeoRuby::SimpleFeatures::Point.from_x_y(-20.78, 20.78).as_latlong(full: true)).to eql('-20°46′48.00″, 20°46′48.00″')
-    end
+    describe '#human_representation' do
+      describe '#as_latlong' do
+        it 'should default to integer sexadecimal values' do
+          expect(point.as_latlong).to eql("47°06′36″, -20°11′60″")
+        end
 
-    it 'should print out nicely latlong' do
-      expect(GeoRuby::SimpleFeatures::Point.from_x_y(47.11, -20.2).as_latlong(full: true)).to eql('47°06′36.00″, -20°11′60.00″')
-    end
+        it 'should provide decimal seconds when passed `full: true`' do
+          expect(point.as_latlong(full: true)).to eql('47°06′36.00″, -20°11′60.00″')
+        end
 
-    it 'should print out nicely latlong' do
-      expect(GeoRuby::SimpleFeatures::Point.from_x_y(47.11, -20.2).as_latlong(coord: true)).to eql('47°06′36″N, 20°11′60″W')
-    end
+        it 'should provide cardinal direction instead of +/- when passed `coord: true`' do
+          expect(point.as_latlong(coord: true)).to eql('47°06′36″N, 20°11′60″W')
+        end
 
-    it 'should print out nicely latlong' do
-      expect(GeoRuby::SimpleFeatures::Point.from_x_y(-47.11, 20.2).as_latlong(full: true, coord: true)).to eql('47°06′36.00″S, 20°11′60.00″E')
-    end
-
-    it 'should print out nicely lat' do
-      expect(GeoRuby::SimpleFeatures::Point.from_x_y(-47.11, 20.2).as_lat).to eql('-47°06′36″')
-    end
-
-    it 'should print out nicely lat with opts' do
-      expect(GeoRuby::SimpleFeatures::Point.from_x_y(-47.11, 20.2).as_lat(full: true)).to eql('-47°06′36.00″')
-    end
-
-    it 'should print out nicely lat with opts' do
-      expect(GeoRuby::SimpleFeatures::Point.from_x_y(-47.11, 20.2).as_lat(full: true, coord: true)).to eql('47°06′36.00″S')
-    end
-
-    it 'should print out nicely long' do
-      expect(GeoRuby::SimpleFeatures::Point.from_x_y(-47.11, 20.2).as_long).to eql('20°11′60″')
-    end
-
-    it 'should print out nicely long with opts' do
-      expect(GeoRuby::SimpleFeatures::Point.from_x_y(-47.11, 20.2).as_long(full: true)).to eql('20°11′60.00″')
-    end
-
-    it 'should print out nicely long with opts' do
-      expect(GeoRuby::SimpleFeatures::Point.from_x_y(-47.11, 20.2).as_long(full: true, coord: true)).to eql('20°11′60.00″E')
+        it 'should properly handle `full` and `coord` simultaneously' do
+          expect(point.as_latlong(full: true, coord: true)).to eql('47°06′36.00″N, 20°11′60.00″W')
+        end
+      end
+        
+      context 'interpreting positive and negative coordinates' do
+        subject(:pos_point) {GeoRuby::SimpleFeatures::Point.from_x_y(10, 10)}
+        subject(:neg_point) {GeoRuby::SimpleFeatures::Point.from_x_y(-10, -10)}
+          
+        it 'should interpret positive longitude as east' do
+          expect(pos_point.as_long(coord: true)).to match(/E$/)
+        end
+          
+        it 'should interpret positive latitude as north' do
+          expect(pos_point.as_lat(coord: true)).to match(/N$/)
+        end
+          
+        it 'should interpret negative longitude as west' do
+          expect(neg_point.as_long(coord: true)).to match(/W$/)
+        end
+          
+        it 'should interpret negative latitude as south' do
+          expect(neg_point.as_lat(coord: true)).to match(/S$/)
+        end
+      end
     end
   end
 
   context 'initialized with 3d arguments' do
+    subject(:point) {GeoRuby::SimpleFeatures::Point.from_x_y_z(-10, -20, -30)}
+    
     it 'should instantiate a 3d point' do
-      point = GeoRuby::SimpleFeatures::Point.from_x_y_z(-10, -20, -30)
       expect(point.x).to eql(-10)
       expect(point.y).to eql(-20)
       expect(point.z).to eql(-30)
     end
 
     it 'should store correctly a 3d point' do
-      point = GeoRuby::SimpleFeatures::Point.from_x_y_z(-10, -20, -30)
       expect(point.to_coordinates).to eq([-10, -20, -30])
     end
       
@@ -169,23 +167,20 @@ describe GeoRuby::SimpleFeatures::Point do
   end
     
   context 'initialized with 2d+m arguments' do
+    subject(:point) {GeoRuby::SimpleFeatures::Point.from_x_y_m(10, 20, 30)}
+    
     it 'should instantiate a 3d(m) point' do
-      point = GeoRuby::SimpleFeatures::Point.from_x_y_m(10, 20, 30)
       expect(point.x).to eql(10)
       expect(point.y).to eql(20)
       expect(point.m).to eql(30)
       expect(point.z).to eql(0.0)
     end
-      
-    it 'should have a 3D+M matcher' do
-      expect(GeoRuby::SimpleFeatures::Point.from_x_y_z_m(1, 2, 3.33, 't'))
-      .to be_a_point(1, 2, 3.33, 't')
-    end
   end
     
   context 'initialized with 3d+m (aka 4d) arguments' do
+    subject(:point) {GeoRuby::SimpleFeatures::Point.from_x_y_z_m(10, 20, 30, 40, 123)}
+    
     it 'should instantiate a 4d point' do
-      point = GeoRuby::SimpleFeatures::Point.from_x_y_z_m(10, 20, 30, 40, 123)
       expect(point.x).to eql(10)
       expect(point.y).to eql(20)
       expect(point.z).to eql(30)
@@ -194,9 +189,15 @@ describe GeoRuby::SimpleFeatures::Point do
     end
 
     it 'should store correctly a 4d point' do
-      point = GeoRuby::SimpleFeatures::Point.from_x_y_z_m(-10, -20, -30, 1)
-      expect(point.m).to eql(1)
-      expect(point.to_coordinates).to eq([-10, -20, -30, 1])
+      expect(point.to_coordinates).to eq([10, 20, 30, 40])
+    end
+    
+    it 'should have a 3D+M matcher' do
+      expect(point).to be_a_point(10, 20, 30, 40)
+    end
+    
+    it 'should accept a string value for `m` and return it properly' do
+      expect(GeoRuby::SimpleFeatures::Point.from_x_y_z_m(1, 2, 3.33, 't').m).to eql('t')
     end
       
     it 'should instantiate from coordinates x,y,z,m' do

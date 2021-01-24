@@ -15,3 +15,5 @@ EWKB — (Extremely?) Well Known Binary text representations of geo data, see ht
 x,y,z,m — m is a milestone or benchmark used as an origin for this measurement, see https://en.wikipedia.org/wiki/Linear_referencing
 
 SRID specifies the spatial coordinate system you're using, see https://en.wikipedia.org/wiki/Spatial_reference_system
+
+The classic degrees-minutes-seconds representation is called sexagesimal degree, see https://en.wikipedia.org/wiki/Geographic_coordinate_conversion
