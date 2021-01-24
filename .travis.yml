@@ -5,7 +5,6 @@ rvm:
   - 2.7.2
   - 3.0.0
   - ruby-head
-  - rbx-19mode
 env:
   global:
     - CC_TEST_REPORTER_ID=0969386fb2d2c792937fa61d8d832f5cd903c1a3d46788fcf19617808c72682a
