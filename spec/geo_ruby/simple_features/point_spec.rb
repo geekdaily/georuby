@@ -251,10 +251,16 @@ describe GeoRuby::SimpleFeatures::Point do
   end
     
   context '#from_rt' do
+    subject(:point) {GeoRuby::SimpleFeatures::Point.from_r_t(1.4142, 45)}
+
     it 'should instantiate a point from polar coordinates' do
-      point = GeoRuby::SimpleFeatures::Point.from_r_t(1.4142, 45)
       expect(point.y).to be_within(0.1).of(1)
       expect(point.x).to be_within(0.1).of(1)
+    end
+
+    it 'should properly store r and t' do
+      expect(point.r).to eql(1.4142)
+      expect(point.t).to eql(45)
     end
   end
     
