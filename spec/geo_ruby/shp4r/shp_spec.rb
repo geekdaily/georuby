@@ -1,5 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
+# TODO: Look at https://github.com/Nazz78/georuby/ ... he seems to have addressed this.
+
 describe GeoRuby::Shp4r do
 
   describe 'Point' do
