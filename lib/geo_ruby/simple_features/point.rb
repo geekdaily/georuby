@@ -7,8 +7,9 @@ module GeoRuby
     class Point < Geometry
       DEG2RAD = 0.0174532925199433
       HALFPI  = 1.5707963267948966
+
       attr_accessor :x, :y, :z, :m
-      attr_reader :r, :t # radium and theta
+      attr_reader :r, :t # radian and theta
 
       # If you prefer calling the coordinates lat and lon
       # (or lng, for GeoKit compatibility)
@@ -316,7 +317,7 @@ module GeoRuby
       #
       # http://www.engineeringtoolbox.com/converting-cartesian-polar-coordinates-d_1347.html
       # http://rcoordinate.rubyforge.org/svn/point.rb
-      # outputs radium
+      # outputs radian
       def r
         Math.sqrt(@x**2 + @y**2)
       end
