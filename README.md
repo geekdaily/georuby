@@ -21,7 +21,8 @@ If you are looking for Proj/Geos (geometric operators or reprojections) rubygem 
 rgeo:"https://github.com/dazuma/rgeo"
 
 [![Build Status](https://travis-ci.org/geekdaily/georuby.svg?branch=master)](https://travis-ci.org/geekdaily/georuby)
-[![Code Climate](https://codeclimate.com/github/geekdaily/georuby.svg)](https://codeclimate.com/github/geekdaily/georuby)
+[![Maintainability](https://api.codeclimate.com/v1/badges/f9107afad07fa0ffab18/maintainability)](https://codeclimate.com/github/geekdaily/georuby/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/f9107afad07fa0ffab18/test_coverage)](https://codeclimate.com/github/geekdaily/georuby/test_coverage)
 
 Available data types
 --------------------
