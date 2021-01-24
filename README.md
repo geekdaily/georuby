@@ -20,11 +20,8 @@ OGC:"http://www.opengis.org/docs/99-049.pdf"
 If you are looking for Proj/Geos (geometric operators or reprojections) rubygem checkout: (C extension)
 rgeo:"https://github.com/dazuma/rgeo"
 
-[![Gem Version](https://badge.fury.io/rb/georuby.svg)](http://badge.fury.io/rb/georuby)
-[![Dependency Status](https://gemnasium.com/geekdaily/georuby.svg)](https://gemnasium.com/geekdaily/georuby)
 [![Build Status](https://travis-ci.org/geekdaily/georuby.svg?branch=master)](https://travis-ci.org/geekdaily/georuby)
 [![Code Climate](https://codeclimate.com/github/geekdaily/georuby.svg)](https://codeclimate.com/github/geekdaily/georuby)
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/geekdaily/georuby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Available data types
 --------------------
