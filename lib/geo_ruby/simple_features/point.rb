@@ -5,20 +5,15 @@ module GeoRuby
   module SimpleFeatures
     # Represents a point. It is in 3D if the Z coordinate is not +nil+.
     class Point < Geometry
-      DEG2RAD = 0.0174532925199433
-      HALFPI  = 1.5707963267948966
+      DEG2RAD = Math::PI / 180
 
       attr_accessor :x, :y, :z, :m
-      attr_reader :r, :t # radian and theta
 
       # If you prefer calling the coordinates lat and lon
       # (or lng, for GeoKit compatibility)
       alias_method :lon, :x
       alias_method :lng, :x
       alias_method :lat, :y
-      alias_method :rad, :r
-      alias_method :tet, :t
-      alias_method :tetha, :t
 
       def initialize(srid = DEFAULT_SRID, with_z = false, with_m = false)
         super(srid, with_z, with_m)
@@ -313,29 +308,29 @@ module GeoRuby
       end
       alias_method :as_ll, :as_latlong
 
-      # Polar stuff
-      #
-      # http://www.engineeringtoolbox.com/converting-cartesian-polar-coordinates-d_1347.html
-      # http://rcoordinate.rubyforge.org/svn/point.rb
-      # outputs radian
+      # Convert cartesian (stored) to polar coordinates
+      # http://www.java2s.com/Code/Ruby/Development/ConverttheCartesianpointxytopolarmagnitudeanglecoordinates.htm
+      # https://tutorial.math.lamar.edu/classes/calcii/polarcoordinates.aspx
+      # https://www.mathsisfun.com/polar-cartesian-coordinates.html
+
+      # outputs radius
       def r
-        Math.sqrt(@x**2 + @y**2)
+        Math.hypot(y,x)
       end
+      alias_method :rad, :r
 
       # Outputs theta
       def theta_rad
-        if @x.zero?
-          @y < 0 ? 3 * HALFPI : HALFPI
-        else
-          th = Math.atan(@y / @x)
-          r > 0 ? th + 2 * Math::PI : th
-        end
+        Math.atan2(@y, @x)
       end
 
       # Outputs theta in degrees
       def theta_deg
         theta_rad / DEG2RAD
       end
+      alias_method :t, :theta_deg
+      alias_method :tet, :theta_deg
+      alias_method :tetha, :theta_deg
 
       # Outputs an array containing polar distance and theta
       def as_polar
