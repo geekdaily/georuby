@@ -46,7 +46,7 @@ module GeoRuby
       #
       # Euclidian distance in whatever unit the x and y ordinates are.
       def euclidian_distance(point)
-        Math.sqrt((point.x - x)**2 + (point.y - y)**2)
+        Math.hypot((point.x - x),(point.y - y))
       end
 
       # Spherical distance in meters, using 'Haversine' formula.
@@ -54,6 +54,7 @@ module GeoRuby
       # Assumes x is the lon and y the lat, in degrees.
       # The user has to make sure using this distance makes sense
       # (ie she should be in latlon coordinates)
+      # TODO: Look at https://gist.github.com/timols/5268103 for comparison
       def spherical_distance(point, r = 6_370_997.0)
         dlat = (point.lat - lat) * DEG2RAD / 2
         dlon = (point.lon - lon) * DEG2RAD / 2
@@ -94,9 +95,7 @@ module GeoRuby
           sin_lambda = Math.sin(lambda)
           cos_lambda = Math.cos(lambda)
           sin_sigma = \
-          Math.sqrt((cos_u2 * sin_lambda) * (cos_u2 * sin_lambda) +
-                    (cos_u1 * sin_u2 - sin_u1 * cos_u2 * cos_lambda) *
-                    (cos_u1 * sin_u2 - sin_u1 * cos_u2 * cos_lambda))
+          Math.hypot((cos_u2 * sin_lambda), (cos_u1 * sin_u2 - sin_u1 * cos_u2 * cos_lambda))
 
           return 0 if sin_sigma == 0 # coincident points
 
@@ -151,14 +150,14 @@ module GeoRuby
         end
         # TODO: benchmark if worth creating an instance
         # euclidian_distance(Point.from_x_y(xx, yy))
-        Math.sqrt((@x - xx)**2 + (@y - yy)**2)
+        Math.hypot((@x - xx), (@y - yy))
       end
 
       # Bearing from a point to another, in degrees.
       def bearing_to(other)
         return 0 if self == other
         a, b =  other.x - x, other.y - y
-        res =  Math.acos(b / Math.sqrt(a * a + b * b)) / Math::PI * 180
+        res =  Math.acos(b / Math.hypot(a,b)) / Math::PI * 180
         a < 0 ? 360 - res : res
       end
 
