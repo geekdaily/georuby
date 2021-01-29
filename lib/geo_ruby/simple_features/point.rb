@@ -77,6 +77,9 @@ module GeoRuby
       # Their values by default are set to the WGS84 ellipsoid.
       #
       def ellipsoidal_distance(point, a = 6_378_137.0, b = 6_356_752.3142)
+        # TODO: Look at https://github.com/rbur004/vincenty/blob/master/lib/vincenty.rb
+        #   and https://github.com/skyderby/vincenty_distance/blob/master/lib/vincenty.rb
+        #   as reference, or just choose to depend on one of them?
         f = (a - b) / a
         l = (point.lon - lon) * DEG2RAD
 
@@ -156,9 +159,9 @@ module GeoRuby
       # Bearing from a point to another, in degrees.
       def bearing_to(other)
         return 0 if self == other
-        a, b =  other.x - x, other.y - y
-        res =  Math.acos(b / Math.hypot(a,b)) / Math::PI * 180
-        a < 0 ? 360 - res : res
+        theta = Math.atan2(other.x - x, other.y - y)
+        theta += Math::PI * 2 if theta < 0
+        theta / DEG2RAD
       end
 
       # Bearing from a point to another as symbols. (:n, :s, :sw, :ne...)
