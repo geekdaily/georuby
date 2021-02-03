@@ -131,6 +131,21 @@ describe GeoRuby::SimpleFeatures::Point do
       expect(point.z).to eql(0.0)
       expect(point.srid).to eql(123)
     end
+    
+    context 'providing polar coordinates when x = 0' do
+      # When x = 0, theta is 𝛑/2 * (y/abs(y))
+
+      subject(:pos_y) {GeoRuby::SimpleFeatures::Point.from_x_y(0.0, 32.3141)}
+      subject(:neg_y) {GeoRuby::SimpleFeatures::Point.from_x_y(0.0, -32.3141)}
+
+      it 'should return +𝛑/2 when y is positive' do
+        expect(pos_y.theta_rad).to be_within(0.0001).of(Math::PI / 2)
+      end
+
+      it 'should return -𝛑/2 when y is negative' do
+        expect(neg_y.theta_rad).to be_within(0.0001).of(-Math::PI / 2)
+      end
+    end
 
     describe '#human_representation' do
       describe '#as_latlong' do
@@ -250,11 +265,24 @@ describe GeoRuby::SimpleFeatures::Point do
     end
   end
     
-  context '#from_rt' do
+  context 'initialized from polar coordinates' do
+    subject(:point) {GeoRuby::SimpleFeatures::Point.from_r_t(1.4142, 45)}
+
     it 'should instantiate a point from polar coordinates' do
-      point = GeoRuby::SimpleFeatures::Point.from_r_t(1.4142, 45)
       expect(point.y).to be_within(0.1).of(1)
       expect(point.x).to be_within(0.1).of(1)
+    end
+
+    it 'should properly calculate radius from cartesian (x,y)' do
+      expect(point.r).to be_within(0.000001).of(1.4142)
+    end
+
+    it 'should properly calculate theta as degrees' do
+      expect(point.theta_deg).to be_within(0.0001).of(45)
+    end
+
+    it 'should properly calculate theta as radians' do
+      expect(point.theta_rad).to be_within(0.0001).of(45 * (Math::PI / 180))
     end
   end
     
@@ -459,31 +487,9 @@ describe GeoRuby::SimpleFeatures::Point do
       expect(point.georss_simple_representation(georss_ns: 'hey')).to eql("<hey:point>32.3141 -11.2431</hey:point>\n")
     end
 
-    it 'should print r (polar coords)' do
-      expect(point.r).to be_within(0.000001).of(34.214154)
-    end
-
-    it 'should print theta as degrees' do
-      expect(point.theta_deg).to be_within(0.0001).of(289.184406352127)
-    end
-
-    it 'should print theta as radians' do
-      expect(point.theta_rad).to be_within(0.0001).of(5.04722003626982)
-    end
-
-    it 'should print theta when x is zero y > 0' do
-      pt = GeoRuby::SimpleFeatures::Point.from_x_y(0.0, 32.3141)
-      expect(pt.theta_rad).to be_within(0.0001).of(1.5707963267948966)
-    end
-
-    it 'should print theta when x is zero y < 0' do
-      pt = GeoRuby::SimpleFeatures::Point.from_x_y(0.0, -32.3141)
-      expect(pt.theta_rad).to be_within(0.0001).of(4.71238898038469)
-    end
-
     it 'should output as polar' do
       expect(point.as_polar).to be_instance_of(Array)
-      expect(point.as_polar.size).to eq(2) # .length.should eql(2)
+      expect(point.as_polar.size).to eq(2)
     end
 
     it 'should print out nicely as json/geojson' do

@@ -5,20 +5,15 @@ module GeoRuby
   module SimpleFeatures
     # Represents a point. It is in 3D if the Z coordinate is not +nil+.
     class Point < Geometry
-      DEG2RAD = 0.0174532925199433
-      HALFPI  = 1.5707963267948966
+      DEG2RAD = Math::PI / 180
 
       attr_accessor :x, :y, :z, :m
-      attr_reader :r, :t # radian and theta
 
       # If you prefer calling the coordinates lat and lon
       # (or lng, for GeoKit compatibility)
       alias_method :lon, :x
       alias_method :lng, :x
       alias_method :lat, :y
-      alias_method :rad, :r
-      alias_method :tet, :t
-      alias_method :tetha, :t
 
       def initialize(srid = DEFAULT_SRID, with_z = false, with_m = false)
         super(srid, with_z, with_m)
@@ -51,7 +46,7 @@ module GeoRuby
       #
       # Euclidian distance in whatever unit the x and y ordinates are.
       def euclidian_distance(point)
-        Math.sqrt((point.x - x)**2 + (point.y - y)**2)
+        Math.hypot((point.x - x),(point.y - y))
       end
 
       # Spherical distance in meters, using 'Haversine' formula.
@@ -59,6 +54,7 @@ module GeoRuby
       # Assumes x is the lon and y the lat, in degrees.
       # The user has to make sure using this distance makes sense
       # (ie she should be in latlon coordinates)
+      # TODO: Look at https://gist.github.com/timols/5268103 for comparison
       def spherical_distance(point, r = 6_370_997.0)
         dlat = (point.lat - lat) * DEG2RAD / 2
         dlon = (point.lon - lon) * DEG2RAD / 2
@@ -81,6 +77,9 @@ module GeoRuby
       # Their values by default are set to the WGS84 ellipsoid.
       #
       def ellipsoidal_distance(point, a = 6_378_137.0, b = 6_356_752.3142)
+        # TODO: Look at https://github.com/rbur004/vincenty/blob/master/lib/vincenty.rb
+        #   and https://github.com/skyderby/vincenty_distance/blob/master/lib/vincenty.rb
+        #   as reference, or just choose to depend on one of them?
         f = (a - b) / a
         l = (point.lon - lon) * DEG2RAD
 
@@ -99,9 +98,7 @@ module GeoRuby
           sin_lambda = Math.sin(lambda)
           cos_lambda = Math.cos(lambda)
           sin_sigma = \
-          Math.sqrt((cos_u2 * sin_lambda) * (cos_u2 * sin_lambda) +
-                    (cos_u1 * sin_u2 - sin_u1 * cos_u2 * cos_lambda) *
-                    (cos_u1 * sin_u2 - sin_u1 * cos_u2 * cos_lambda))
+          Math.hypot((cos_u2 * sin_lambda), (cos_u1 * sin_u2 - sin_u1 * cos_u2 * cos_lambda))
 
           return 0 if sin_sigma == 0 # coincident points
 
@@ -156,15 +153,15 @@ module GeoRuby
         end
         # TODO: benchmark if worth creating an instance
         # euclidian_distance(Point.from_x_y(xx, yy))
-        Math.sqrt((@x - xx)**2 + (@y - yy)**2)
+        Math.hypot((@x - xx), (@y - yy))
       end
 
       # Bearing from a point to another, in degrees.
       def bearing_to(other)
         return 0 if self == other
-        a, b =  other.x - x, other.y - y
-        res =  Math.acos(b / Math.sqrt(a * a + b * b)) / Math::PI * 180
-        a < 0 ? 360 - res : res
+        theta = Math.atan2(other.x - x, other.y - y)
+        theta += Math::PI * 2 if theta < 0
+        theta / DEG2RAD
       end
 
       # Bearing from a point to another as symbols. (:n, :s, :sw, :ne...)
@@ -313,29 +310,29 @@ module GeoRuby
       end
       alias_method :as_ll, :as_latlong
 
-      # Polar stuff
-      #
-      # http://www.engineeringtoolbox.com/converting-cartesian-polar-coordinates-d_1347.html
-      # http://rcoordinate.rubyforge.org/svn/point.rb
-      # outputs radian
+      # Convert cartesian (stored) to polar coordinates
+      # http://www.java2s.com/Code/Ruby/Development/ConverttheCartesianpointxytopolarmagnitudeanglecoordinates.htm
+      # https://tutorial.math.lamar.edu/classes/calcii/polarcoordinates.aspx
+      # https://www.mathsisfun.com/polar-cartesian-coordinates.html
+
+      # outputs radius
       def r
-        Math.sqrt(@x**2 + @y**2)
+        Math.hypot(y,x)
       end
+      alias_method :rad, :r
 
       # Outputs theta
       def theta_rad
-        if @x.zero?
-          @y < 0 ? 3 * HALFPI : HALFPI
-        else
-          th = Math.atan(@y / @x)
-          r > 0 ? th + 2 * Math::PI : th
-        end
+        Math.atan2(@y, @x)
       end
 
       # Outputs theta in degrees
       def theta_deg
         theta_rad / DEG2RAD
       end
+      alias_method :t, :theta_deg
+      alias_method :tet, :theta_deg
+      alias_method :tetha, :theta_deg
 
       # Outputs an array containing polar distance and theta
       def as_polar
