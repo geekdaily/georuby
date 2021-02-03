@@ -16,6 +16,8 @@ require 'geo_ruby/kml'
 require 'geo_ruby/georss'
 require 'geo_ruby/geojson'
 
+SPEC_DATA_DIR = File.join(File.dirname(__FILE__), 'data')
+
 module GeorubyMatchers
   class BeGeometric
     def matches?(actual)
