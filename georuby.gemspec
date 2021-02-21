@@ -5,7 +5,7 @@ $LOAD_PATH.unshift lib unless $LOAD_PATH.include?(lib)
 require 'geo_ruby/version'
 
 Gem::Specification.new do |s|
-  s.name    = 'georuby'
+  s.name    = 'geekdaily-georuby'
   s.version = GeoRuby::VERSION
 
   s.summary = 'Ruby data holder for OGC Simple Features'
