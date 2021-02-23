@@ -25,6 +25,7 @@ module GeoRuby
       # Sets all coordinates in one call.
       # Use the +m+ accessor to set the m.
       def set_x_y_z(x, y, z)
+        # TODO: If you pass nil, nil, nil you get back 0.0, 0.0, 0.0 ... seems legit
         @x = x && !x.is_a?(Numeric) ? x.to_f : x
         @y = y && !y.is_a?(Numeric) ? y.to_f : y
         @z = z && !z.is_a?(Numeric) ? z.to_f : z
@@ -365,6 +366,21 @@ module GeoRuby
       # Simple helper for 3D maps
       def to_xyz
         [x, y, z]
+      end
+      
+      # Creates a point from a geo object that contains latitude and longitude
+      def self.from_geo(geo_obj, srid = DEFAULT_SRID)
+        lat_names = %w(latitude lat).map(&:to_s)
+        long_names = %w(longitude long lng).map(&:to_s)
+        
+        lat_method = lat_names.select {|mth| geo_obj.respond_to?(mth)}.first
+        long_method = long_names.select {|mth| geo_obj.respond_to?(mth)}.first
+        
+        if lat_method && long_method
+          return from_coordinates([geo_obj.send(long_method), geo_obj.send(lat_method)], srid)
+        else
+          raise ArgumentError, 'object must have both latitude and longitude methods'
+        end
       end
 
       # Creates a point from an array of coordinates

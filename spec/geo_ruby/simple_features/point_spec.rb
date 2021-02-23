@@ -285,6 +285,48 @@ describe GeoRuby::SimpleFeatures::Point do
       expect(point.theta_rad).to be_within(0.0001).of(45 * (Math::PI / 180))
     end
   end
+  
+  context 'initialized from an object with latitude and longitude methods' do
+    let(:latitude) {34.1783533}
+    let(:longitude) {-118.3092881}
+    
+    it 'should handle objects responding to #latitude and #longitude' do
+      geo_obj = double("Geo Object with Long Names", :latitude => latitude, :longitude => longitude)
+      
+      point = GeoRuby::SimpleFeatures::Point.from_geo(geo_obj)
+      
+      expect(point.lat).to eql(latitude)
+      expect(point.lng).to eql(longitude)
+    end
+
+    it 'should handle objects responding to #lat and #long' do
+      geo_obj = double("Geo Object with Medium Names", :lat => latitude, :long => longitude)
+      
+      point = GeoRuby::SimpleFeatures::Point.from_geo(geo_obj)
+      
+      expect(point.lat).to eql(latitude)
+      expect(point.lng).to eql(longitude)
+    end
+
+    it 'should handle objects responding to #lat and #lng' do
+      geo_obj = double("Geo Object with Short Names", :lat => latitude, :lng => longitude)
+      
+      point = GeoRuby::SimpleFeatures::Point.from_geo(geo_obj)
+      
+      expect(point.lat).to eql(latitude)
+      expect(point.lng).to eql(longitude)
+    end
+    
+    it 'should raise an error for objects without both latitude and longitude methods' do
+      geo_no_lat = double("Geo Object with no latitude", :longitude => longitude)
+      geo_no_long = double("Geo Object with no longitude", :lat => latitude)
+      geo_no_lat_long = double("Geo Object with no latitude")
+      
+      expect{GeoRuby::SimpleFeatures::Point.from_geo(geo_no_lat)}.to raise_error(ArgumentError)
+      expect{GeoRuby::SimpleFeatures::Point.from_geo(geo_no_long)}.to raise_error(ArgumentError)
+      expect{GeoRuby::SimpleFeatures::Point.from_geo(geo_no_lat_long)}.to raise_error(ArgumentError)
+    end
+  end
     
   describe '#from_latlong with parsing' do
     it 'should parse lat long' do
